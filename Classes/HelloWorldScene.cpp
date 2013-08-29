@@ -308,24 +308,22 @@ void HelloWorld::createDestorySprite(CCPoint pt, Fruit *sp, float angle)
     this->addChild(explodePar, 11, 100) ;
     
     
-//    CCSpriteFrameCache *cache = CCSpriteFrameCache::sharedSpriteFrameCache() ;
-//	
-//	CCArray *frames = new CCArray() ;
-//	for (int i = 1; i <= 2; i++) {
-//		//NSString *frameName = [NSString stringWithFormat:@"edge%02d.png", i] ;
-//        char frameName[64] ;
-//        sprintf(frameName, "edge%02d.png", i) ;
-//		CCSpriteFrame *frame = cache->spriteFrameByName(frameName) ;
-//		frames->addObject(frame) ;
-//	}
-//
-//	CCSprite* spEffect = CCSprite::create("edge01.png") ;
-//	CCAnimation *animation = CCAnimation::create(frames, 0.05f) ;
-//	spEffect->runAction(CCSequence::create(CCAnimate::create(animation), CCHide::create(), NULL)) ;
-//    spEffect->setPosition(pt) ;
-//	this-> addChild(spEffect, 11, 101) ;
-//	frames->removeAllObjects() ;
-//	frames->release() ;
+    CCAnimation *anim=CCAnimation::create();
+        for (int i = 1; i <= 2; i++) {
+            char strname[20] = {0};
+            sprintf(strname, "edge%i.png", i);
+            anim->addSpriteFrameWithFileName(strname);
+        }
+        anim->setDelayPerUnit(2.8f / 39.0f);
+        anim->setRestoreOriginalFrame(true);
+        CCAnimate * animet=CCAnimate::create(anim);
+        CCRotateBy * rotate = CCRotateBy::create(0, angle * 180);
+        CCSequence * sq = CCSequence::create(rotate, animet, CCHide::create(), NULL);
+        CCSprite* spEffect = CCSprite::create("edge1.png") ;
+    //    spEffect->setRotation(angle * 180);
+        spEffect->runAction(sq);
+        spEffect->setPosition(pt);
+        this->addChild(spEffect);
     
 }   
 void HelloWorld::removeBreakFruit(cocos2d::CCNode* node) 
