@@ -5,8 +5,9 @@
 //  Created by Eddy on 12-3-28.
 //  Copyright home 2012年. All rights reserved.
 //
-
+#include "GameManager.h"
 #include "DrawLines.h"
+#include "SimpleAudioEngine.h"
 //#include <OpenGLES/ES1/gl.h>
 using namespace cocos2d ;
 
@@ -205,10 +206,13 @@ void DrawLines::line()
 		vertexCpy++ ;
 	}
     CC_NODE_DRAW_SETUP();
+//    ccGLEnableVertexAttribs( kCCVertexAttrib_Position );
+//    ccGLEnableVertexAttribs( kCCVertexAttrib_Color );
+	kmGLPushMatrix();
     ccGLBlendFunc( CC_BLEND_SRC, CC_BLEND_DST );
     ccGLBindTexture2D(GL_TEXTURE_2D);
 //	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_SRC_COLOR);
 	
 //	glVertexPointer(2, GL_FLOAT, 0, vertexTriangle);
     glVertexAttribPointer(kCCVertexAttrib_Position, 2, GL_FLOAT, GL_FALSE, sizeof(vertexTriangle[0]), vertexTriangle);
@@ -216,11 +220,13 @@ void DrawLines::line()
 //	glColorPointer(kCCVertexAttrib_Color, GL_UNSIGNED_BYTE, 0, lineColors);
     glVertexAttribPointer(kCCVertexAttrib_Color, GL_UNSIGNED_BYTE, 0, GL_FALSE, sizeof(lineColors[0]), lineColors);
 //	glEnableClientState(GL_COLOR_ARRAY);
+    glEnable(GL_SRC_COLOR);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLint)((vertexCpy-vertexTriangle-1)));
     
 //	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnable(GL_TEXTURE_2D);
-        
+	glEnable(GL_ONE_MINUS_SRC_COLOR);
+    kmGLPopMatrix();
+    
     delete [] vertexMiddle ;
 }
 void DrawLines::erasureNail()
@@ -234,9 +240,10 @@ void DrawLines::erasureNail()
 }
 void DrawLines::draw()
 {
+    this->getParent()->draw();
     long dt = time(NULL) ;
     
-    if ( m_timer > 10 )
+    if ( m_timer > 100 )
     {
         m_timer = 0 ;
         erasureNail() ;
@@ -269,6 +276,7 @@ void DrawLines::ccTouchesBegan(CCSet* touches, CCEvent* event)
 	m_pointPath[m_Index++] = ccpMult(touchPoint, CC_CONTENT_SCALE_FACTOR())  ;
 	m_pParticle->resetSystem() ;
 	m_pParticle->setPosition(touchPoint) ;
+    CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("smallcut.mp3");
 }
 void DrawLines::ccTouchesMoved(CCSet* touches, CCEvent* event)
 {
@@ -293,6 +301,13 @@ void DrawLines::ccTouchesMoved(CCSet* touches, CCEvent* event)
 	else {
 		memmove(m_pointPath, &m_pointPath[1], sizeof(CCPoint)*(POINT_NUM-1)) ;
 		m_pointPath[m_Index-1] = pointTmp ;
+        int pnow = GameManager::sharedGameManager()->getPointNow();
+        int ptotal = GameManager::sharedGameManager()->getPointTotal();
+        GameManager::sharedGameManager()->setPointTotal(ptotal + pnow);
+        GameManager::sharedGameManager()->setPointNow(0);
+        if (pnow >= 3) {
+            GameManager::sharedGameManager()->setHit(pnow);
+        }
 	}
 }
 void DrawLines::ccTouchesEnded(CCSet* touches, CCEvent* event)
@@ -303,4 +318,12 @@ void DrawLines::ccTouchesEnded(CCSet* touches, CCEvent* event)
 	m_bTouched = false ;
 	m_touchEndPoint = touchPoint ;
 	m_pParticle->stopSystem() ;
+    
+    int pnow = GameManager::sharedGameManager()->getPointNow();
+    int ptotal = GameManager::sharedGameManager()->getPointTotal();
+    GameManager::sharedGameManager()->setPointTotal(ptotal + pnow);
+    GameManager::sharedGameManager()->setPointNow(0);
+    if (pnow >= 3) {
+        GameManager::sharedGameManager()->setHit(pnow);
+    }  
 }

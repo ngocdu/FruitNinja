@@ -4,7 +4,7 @@
 #include "cocos2d.h"
 
 using namespace std;
-
+using namespace cocos2d;
 class GameManager : public cocos2d::CCObject
 {
 private:
@@ -15,7 +15,12 @@ private:
     int point;
     string ipAddr;
     int reward;
+    CC_SYNTHESIZE(float, _scaleSize, ScaleSize);
     CC_SYNTHESIZE(float, _timeAction, TimeAction);
+    CC_SYNTHESIZE(int, _pointNow, PointNow);
+    CC_SYNTHESIZE(int, _pointTotal, PointTotal);
+    CC_SYNTHESIZE(int, _hit, Hit);
+    CC_SYNTHESIZE(CCPoint, _positionHit, PositionHit);
     //Constructor
     GameManager();
 

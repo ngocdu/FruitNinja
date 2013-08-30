@@ -2,6 +2,7 @@
 #include "SimpleAudioEngine.h"
 #include "stdio.h"
 #include "Fruit.h"
+#include "GameManager.h"
 using namespace cocos2d;
 using namespace CocosDenshion;
 
@@ -14,7 +15,10 @@ float HelloWorld::cross(CCPoint a, CCPoint b, CCPoint c)
 	float y2 = c.y - a.y;
 	return (x1 * y2 - x2 * y1);
 }
-float HelloWorld::dot(CCPoint a, CCPoint b, CCPoint c) { //点积，结果大于０则夹角小于９０度，小于０则大于９０度，等于０则垂直
+float HelloWorld::dot(CCPoint a, CCPoint b, CCPoint c) {
+    //点积，结果大于０则夹角小于９０度，小于０则大于９０度，等于０则垂直
+    //Chấm sản phẩm lớn hơn 0 độ góc nhỏ hơn 90, nhỏ hơn 0 và lớn hơn 90 độ, là bằng 0,
+    //theo chiều dọc
 	int x1 = b.x - a.x;
 	int y1 = b.y - a.y;
 	int x2 = c.x - a.x;
@@ -22,16 +26,27 @@ float HelloWorld::dot(CCPoint a, CCPoint b, CCPoint c) { //点积，结果大于
 	return (x1 * x2 + y1 * y2);
 }
 
-bool HelloWorld::segcrossSimple(_segment sega, _segment segb) { //判断两线段是否相交（规范相交，非规范相交）
-	float d1 = cross(sega.a, sega.b, segb.a); //得用叉积原理判断另外一线段的两点是否在另一线段的两侧
+bool HelloWorld::segcrossSimple(_segment sega, _segment segb) {
+    //判断两线段是否相交（规范相交，非规范相交）
+    //Xác định xem hai đoạn đường giao nhau (chỉ tiêu giao nhau, ngã tư không đạt tiêu chuẩn)
+	float d1 = cross(sega.a, sega.b, segb.a);
+    //得用叉积原理判断另外一线段的两点是否在另一线段的两侧
+    //Bắt đầu từ một nguyên tắc sản phẩm chéo xác định xem một đoạn đường trong
+    //một hai điểm trên cả hai bên của đoạn đường
 	float d2 = cross(sega.a, sega.b, segb.b);
 	float d3 = cross(segb.a, segb.b, sega.a);
 	float d4 = cross(segb.a, segb.b, sega.b);
 	//规范相交
-	if(d1 * d2 < 0 && d3 * d4 < 0) //一线段的两端点在另一线段的两侧，相交
-		return true;
+    //định mức giao nhau
+	if(d1 * d2 < 0 && d3 * d4 < 0)
+    //一线段的两端点在另一线段的两侧，相交
+    //Một đoạn đường điểm cuối của hai bên đầu dây bên kia giao nhau
+    return true;
 	//非规范相交
-	if(d1 == 0 && dot(segb.a, sega.a, sega.b) <= 0) //如果线段共线，判断是否在线段上
+    //Ngã tư phi tiêu chuẩn
+	if(d1 == 0 && dot(segb.a, sega.a, sega.b) <= 0)
+        //如果线段共线，判断是否在线段上
+        //Nếu đoạn đường thẳng để xác định xem trực tuyến
 		return true;
 	if(d2 == 0 && dot(segb.b, sega.a, sega.b) <= 0)
 		return true;
@@ -141,7 +156,7 @@ bool HelloWorld::init()
 	CCLabelTTF* pLabel = CCLabelTTF::create("Hello World", "Thonburi", 34);
 
 	// ask director the window size
-	CCSize size = CCDirector::sharedDirector()->getWinSize();
+    size = CCDirector::sharedDirector()->getWinSize();
 
 	// position the label on the center of the screen
 	pLabel->setPosition( ccp(size.width / 2, size.height - 20) );
@@ -168,31 +183,64 @@ bool HelloWorld::init()
     spriteArray = CCArray::createWithCapacity(0);
     spriteArray->retain() ;
     CCLOG("%d", spriteArray->data->num) ;
-    this->schedule(schedule_selector(HelloWorld::update)) ;
     
+    //-------init point
+    SimpleAudioEngine::sharedEngine()->playBackgroundMusic("nature_bgm.mp3");
+    GameManager::sharedGameManager()->setPointNow(0);
+    GameManager::sharedGameManager()->setPointTotal(0);
+    GameManager::sharedGameManager()->setHit(0);
+    time = 0;
+    GameManager::sharedGameManager()->setTimeAction(1.5f *
+                GameManager::sharedGameManager()->getScaleSize());
+    this->schedule(schedule_selector(HelloWorld::update)) ;
+    this->schedule(schedule_selector(HelloWorld::updateTime), 1.0f) ;
     this->schedule(schedule_selector(HelloWorld::createFruit), 0.5f) ;
 	return true;
 }
 void HelloWorld::createFruit(float dt)
 {
-    CCSize size = CCDirector::sharedDirector()->getWinSize();
+    
+    float time = GameManager::sharedGameManager()->getTimeAction();
     int r = rand() % 7 + 1;
     char imageName[10] = {0}; //khong duoc xoa hai dong nay de lan sau con dung
     sprintf(imageName, "fruit%i.png", r);
     Fruit * fruitSp = new Fruit(r, 10, imageName);
+    fruitSp->setCatagoryFruit(0);
     fruitSp->initWithFile(fruitSp->getName().c_str()) ;
     fruitSp->setPosition(ccp(rand()%(int)size.width, -80)) ;
     this->addChild(fruitSp, 10) ;
-    CCJumpTo* jumpAction = CCJumpTo::create(3.0f, ccp(rand()%(int)size.width, -80), size.height , 1) ;
-    CCRotateBy* rotateAction = CCRotateBy::create(3.0f, 360);
+    CCJumpTo* jumpAction = CCJumpTo::create(time, ccp(rand()%(int)size.width, -80), size.height , 1) ;
+    CCRotateBy* rotateAction = CCRotateBy::create(time, 360);
     
     CCHide*hideAction = CCHide::create() ;
     CCFiniteTimeAction* spawnAction = CCSpawn::create(jumpAction, rotateAction, NULL) ;
     CCFiniteTimeAction*SequenceAction = CCSequence::create(spawnAction, hideAction, NULL) ;
-    
+    SequenceAction->setTag(1000);
     fruitSp->runAction(SequenceAction) ;
     spriteArray->addObject(fruitSp) ;
     
+    if (this->time >= 20 ) {
+        this->time = 0;
+        CCSize size = CCDirector::sharedDirector()->getWinSize();
+        int r = rand() % 7 + 1;
+        char imageName[10] = {0}; //khong duoc xoa hai dong nay de lan sau con dung
+        sprintf(imageName, "fruit%i.png", r);
+        Fruit * fruitSp = new Fruit(r, 10, "fruit8.png");
+        fruitSp->setCatagoryFruit(0);
+        fruitSp->initWithFile(fruitSp->getName().c_str()) ;
+        fruitSp->setPosition(ccp(rand()%(int)size.width, -80)) ;
+        fruitSp->setCatagoryFruit(2);
+        this->addChild(fruitSp, 10) ;
+        CCJumpTo* jumpAction = CCJumpTo::create(3.0f, ccp(rand()%(int)size.width, -80), size.height , 1) ;
+        CCRotateBy* rotateAction = CCRotateBy::create(3.0f, 360);
+        
+        CCHide*hideAction = CCHide::create() ;
+        CCFiniteTimeAction* spawnAction = CCSpawn::create(jumpAction, rotateAction, NULL) ;
+        CCFiniteTimeAction*SequenceAction = CCSequence::create(spawnAction, hideAction, NULL) ;
+        
+        fruitSp->runAction(SequenceAction) ;
+        spriteArray->addObject(fruitSp) ;
+    }
     
 }
 CCRect getRect(CCSprite* sprite, float sc)
@@ -307,24 +355,22 @@ void HelloWorld::createDestorySprite(CCPoint pt, Fruit *sp, float angle)
     
     this->addChild(explodePar, 11, 100) ;
     
-    
     CCAnimation *anim=CCAnimation::create();
-        for (int i = 1; i <= 2; i++) {
-            char strname[20] = {0};
-            sprintf(strname, "edge%i.png", i);
-            anim->addSpriteFrameWithFileName(strname);
-        }
-        anim->setDelayPerUnit(2.8f / 39.0f);
-        anim->setRestoreOriginalFrame(true);
-        CCAnimate * animet=CCAnimate::create(anim);
-        CCRotateBy * rotate = CCRotateBy::create(0, angle * 180);
-        CCSequence * sq = CCSequence::create(rotate, animet, CCHide::create(), NULL);
-        CCSprite* spEffect = CCSprite::create("edge1.png") ;
-    //    spEffect->setRotation(angle * 180);
-        spEffect->runAction(sq);
-        spEffect->setPosition(pt);
-        this->addChild(spEffect);
-    
+    for (int i = 1; i <= 2; i++) {
+        char strname[20] = {0};
+        sprintf(strname, "edge%i.png", i);
+        anim->addSpriteFrameWithFileName(strname);
+    }
+    CCRotateBy * rotate = CCRotateBy::create(4.8f / 39.0f, angle * 180);
+    anim->setDelayPerUnit(2.8f / 39.0f);
+    anim->setRestoreOriginalFrame(true);
+    CCAnimate * animet=CCAnimate::create(anim);
+    CCSequence * sq = CCSequence::create(rotate, animet, CCHide::create(), NULL);
+    CCSprite* spEffect = CCSprite::create("edge1.png") ;
+//    spEffect->setRotation(angle * 180);
+    spEffect->runAction(sq);
+    spEffect->setPosition(pt);
+    this->addChild(spEffect);
 }   
 void HelloWorld::removeBreakFruit(cocos2d::CCNode* node) 
 {
@@ -343,6 +389,15 @@ void HelloWorld::removeBreakFruit(cocos2d::CCNode* node)
 //    spR->removeFromParentAndCleanup(true) ;
 //    par->stopSystem() ;
 //    par->removeFromParentAndCleanup(true) ;
+}
+void HelloWorld::updateTime(float dt) {
+    time ++;
+    if (timeDelay > 0) {
+        timeDelay--;
+    }else if (timeDelay <= 0) {
+        GameManager::sharedGameManager()->setTimeAction(1.5f *
+                       GameManager::sharedGameManager()->getScaleSize());
+    }
 }
 void HelloWorld::update(float dt)
 {
@@ -372,15 +427,54 @@ void HelloWorld::update(float dt)
             if ( segmentRectCollision(lt, rb, seg ))
             {
                 CCLOG("割到拉！！！－ －！") ;
+                SimpleAudioEngine::sharedEngine()->playEffect("squash.mp3");
+                int pointNow = GameManager::sharedGameManager()->getPointNow();
+                GameManager::sharedGameManager()->setPointNow(pointNow + 1);
+                GameManager::sharedGameManager()->setPositionHit(sp->getPosition());
                 createDestorySprite(sp->getPosition(), sp, ccpAngle(m_pLineLayer->getTouchBeganPoint(), m_pLineLayer->getTouchEndPoint())) ;
+                if (sp->getCatagoryFruit() == 2) {
+                    timeDelay = 10;
+                    float time = GameManager::sharedGameManager()->getTimeAction();
+                    GameManager::sharedGameManager()->setTimeAction(time * 2);
+                }
                 sp->removeFromParentAndCleanup(true) ;
                 spriteArray->removeObject(sp) ;
-                sp = NULL ;   
+                sp = NULL ;
             }
         }
     }
+    //----------------add hit--------------------
+    int hit = GameManager::sharedGameManager()->getHit();
+    if (hit >= 3) {
+        char strHit[10] = {0}; //khong duoc xoa hai dong nay de lan sau con dung
+        sprintf(strHit, "%i HIT", hit);
+        CCLabelTTF * lbHit = CCLabelTTF::create(strHit, "", 34);
+        lbHit->setPosition(GameManager::sharedGameManager()->getPositionHit());
+        lbHit->setColor(ccc3(255, 123, 234));
+        CCScaleTo * zoom = CCScaleTo::create(2, 1.5);
+        CCHide * hide = CCHide::create();
+        CCSequence * sq = CCSequence::create(zoom, hide, NULL);
+        lbHit->runAction(sq);
+        this->addChild(lbHit);
+        GameManager::sharedGameManager()->setHit(0);
+    }
 }
-
+void HelloWorld::slowAction(float dt) {
+    CCObject *obj;
+    CCARRAY_FOREACH(spriteArray, obj) {
+        Fruit * fr = (Fruit*)obj;
+//        CCSequence * action = (CCSequence*)fr->getActionManager()->getActionByTag(1000, fr);
+        CCJumpTo* jumpAction = CCJumpTo::create(3.0f, ccp(rand()%(int)size.width, -80), size.height , 1) ;
+        CCRotateBy* rotateAction = CCRotateBy::create(3.0f, 360);
+        
+        CCHide*hideAction = CCHide::create() ;
+        CCFiniteTimeAction* spawnAction = CCSpawn::create(jumpAction, rotateAction, NULL) ;
+        CCSequence *SequenceAction = CCSequence::create(spawnAction, hideAction, NULL) ;
+        
+        CCSpeed * speed = CCSpeed::create(SequenceAction, dt);
+        fr->runAction(speed);
+    }
+}
 void HelloWorld::menuCloseCallback(CCObject* pSender)
 {
     this->removeAllChildrenWithCleanup(true) ;

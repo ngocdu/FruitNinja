@@ -19,6 +19,12 @@ private:
     CC_SYNTHESIZE(string, _name, Name);
     CC_SYNTHESIZE(int, _id, Id);
     CC_SYNTHESIZE(float, _timeAction, TimeAction);
+    /* 
+     0 - normal
+     1 - fruit point
+     2 - fruit time
+     */
+    CC_SYNTHESIZE(int, _catagoryFruit, CatagoryFruit);
 public:
 	Fruit();
 	Fruit(int _id, int point, string name);// ham tao co doi so

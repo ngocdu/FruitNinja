@@ -7,7 +7,7 @@
 typedef struct segment {
     cocos2d::CCPoint a, b ;
 } _segment;
-
+using namespace cocos2d;
 class HelloWorld : public cocos2d::CCLayer
 {
 public:
@@ -21,10 +21,11 @@ public:
 	virtual void menuCloseCallback(CCObject* pSender);
     
     void update(float dt) ;
-    
+    void updateTime(float dt);
     void createFruit(float dt) ;
     
     cocos2d::CCArray *spriteArray ;
+    void slowAction(float dt);
 	// implement the "static node()" method manually
 	CREATE_FUNC(HelloWorld);
 protected:
@@ -38,6 +39,10 @@ private:
     void swap(float* a, float* b);
     bool segmentRectCollision(cocos2d::CCPoint leftTop, cocos2d::CCPoint rightBottom, _segment sega);
     void createDestorySprite(cocos2d::CCPoint pt,Fruit *fr, float angle) ;
+    //-------------point----------------------
+    CCSize size;
+    int time;
+    int timeDelay;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

@@ -1,5 +1,5 @@
 obj/local/armeabi/objs/game_shared/__/__/Classes/DrawLines.o: \
- jni/../../Classes/DrawLines.cpp jni/../../Classes/DrawLines.h \
+ jni/../../Classes/DrawLines.cpp jni/../../Classes/GameManager.h \
  /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/include/cocos2d.h \
  /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/include/ccConfig.h \
  /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/platform/CCPlatformConfig.h \
@@ -228,9 +228,12 @@ obj/local/armeabi/objs/game_shared/__/__/Classes/DrawLines.o: \
  /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/touch_dispatcher/CCTouchHandler.h \
  /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/touch_dispatcher/CCTouchDispatcher.h \
  /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/CCScheduler.h \
- /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/support/data_support/uthash.h
+ /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/support/data_support/uthash.h \
+ jni/../../Classes/DrawLines.h \
+ /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../CocosDenshion/android/../include/SimpleAudioEngine.h \
+ /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../CocosDenshion/android/../include/Export.h
 
-jni/../../Classes/DrawLines.h:
+jni/../../Classes/GameManager.h:
 
 /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/include/cocos2d.h:
 
@@ -689,3 +692,9 @@ jni/../../Classes/DrawLines.h:
 /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/CCScheduler.h:
 
 /Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../cocos2dx/support/data_support/uthash.h:
+
+jni/../../Classes/DrawLines.h:
+
+/Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../CocosDenshion/android/../include/SimpleAudioEngine.h:
+
+/Users/jpn/Documents/NgocDu/build_game/cocos2d-2.1rc0-x-2.1.3/FruitNinja/proj.android/../../CocosDenshion/android/../include/Export.h:
